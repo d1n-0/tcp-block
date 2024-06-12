@@ -7,6 +7,7 @@
 
 int forward(
     int sd,
+    struct sockaddr_ll *sa,
     pcap_t *pcap,
     uint8_t *packet,
     Mac smac
@@ -32,18 +33,23 @@ int forward(
 
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
-    sin.sin_port = tcp->d_port;
-    sin.sin_addr.s_addr = ip->d_addr;
-
-    if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len, 0, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
+    sin.sin_port = htons(tcp->d_port);
+    sin.sin_addr.s_addr = htonl(ip->d_addr);
+    if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len, 0, (struct sockaddr *)sa, sizeof(struct sockaddr)) == -1) {
         perror("sendto() failed");
         return -1;
     }
+    // if (sendto(sd, packet, sizeof(EthHdr) + ntohs(ip->total_length), 0, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
+    //     perror("sendto() failed");
+    //     return -1;
+    // }
+    printf("Forwarded\n");
     // pcap_sendpacket(pcap, data, sizeof(EthHdr) + ip_len + tcp_len);
 }
 
 int backward(
     int sd,
+    struct sockaddr_ll *sa,
     pcap_t *pcap,
     uint8_t *packet,
     Mac smac,
@@ -79,7 +85,7 @@ int backward(
     sin.sin_port = tcp->s_port;
     sin.sin_addr.s_addr = ip->s_addr;
 
-    if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len + payload_len, 0, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
+    if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len + payload_len, 0, (struct sockaddr *)sa, sizeof(struct sockaddr)) == -1) {
         perror("sendto() failed");
         return -1;
     }

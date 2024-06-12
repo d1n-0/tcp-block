@@ -1,6 +1,15 @@
 #include <pcap.h>
 #include <cstdio>
 #include <cstring>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <linux/if_ether.h>
+
+#include <sys/socket.h>
+#include <linux/if_packet.h>
+#include <net/ethernet.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 #include "ethhdr.h"
 #include "iphdr.h"
@@ -37,6 +46,18 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	struct ifreq ifr0;
+	struct sockaddr_ll sa;
+
+    memset(&ifr0, 0, sizeof(ifr0));
+    strncpy(ifr0.ifr_name, param.dev_, IFNAMSIZ - 1);
+    if (ioctl(sd, SIOCGIFINDEX, &ifr0) == -1) {
+        fprintf(stderr, "network interface error\n");
+        return -1;
+    }
+    sa.sll_ifindex = ifr0.ifr_ifindex;
+    sa.sll_halen = ETH_ALEN;
+
     while (true)
     {
         struct pcap_pkthdr *header;
@@ -52,7 +73,7 @@ int main(int argc, char *argv[])
 
 		printf("packet: %u bytes captured\n", header->caplen);
 		if (!check(packet, (uint8_t *)"Host: www.gilgil.net", 3)) continue;
-		block(sd, pcap, (uint8_t *)packet, smac);
+		block(sd, &sa, pcap, (uint8_t *)packet, smac);
     }
 
     pcap_close(pcap);
