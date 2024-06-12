@@ -54,7 +54,6 @@ typedef struct {
         
         p = (uint16_t *)&pseudo_header;
         for (int i = 0; i < sizeof(struct _pseudo_header) >> 1; i++) {
-            printf("%x ", *p);
             sum += (*p++);
         }
 
