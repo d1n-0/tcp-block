@@ -53,18 +53,21 @@ typedef struct {
         };
         
         p = (uint16_t *)&pseudo_header;
-        for (int i = 0; i < (offset << 1); i++) {
-            sum += ntohs(*p++);
+        for (int i = 0; i < sizeof(struct _pseudo_header) >> 1; i++) {
+            sum += (*p++);
         }
 
         p = (uint16_t *)this;
-        for (int i = 0; i < (offset << 2); i++) {
-            sum += ntohs(*p++);
+        for (int i = 0; i < (offset << 1); i++) {
+            sum += (*p++);
         }
         
         p = (uint16_t *)payload;
-        for (int i = 0; i < payload_len; i++) {
-            sum += ntohs(*p++);
+        for (int i = 0; i < payload_len >> 1; i++) {
+            sum += (*p++);
+        }
+        if (payload_len & 1) {
+            sum += *(uint8_t *)p;
         }
 
         while (sum >> 16) sum = (sum >> 16) + (sum & 0xFFFF);

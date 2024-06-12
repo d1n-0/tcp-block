@@ -29,8 +29,8 @@ typedef struct {
     uint16_t calcChecksum() {
         uint32_t sum = 0;
         uint16_t *p = (uint16_t *)this;
-        for (int i = 0; i < ihl << 2; i++) {
-            sum += ntohs(*p++);
+        for (int i = 0; i < ihl << 1; i++) {
+            sum += *p++;
         }
         while (sum >> 16) sum = (sum >> 16) + (sum & 0xFFFF);
         
