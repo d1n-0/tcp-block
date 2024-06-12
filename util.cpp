@@ -9,9 +9,6 @@
 #include <stdio.h>
 #include <string>
 
-// https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
-const char* http_request_methods[] = {"GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"};
-
 void usage() {
     printf("syntax : tcp-block <interface> <pattern>\n");
     printf("sample : tcp-block wlan0 \"Host: test.gilgil.net\"\n");

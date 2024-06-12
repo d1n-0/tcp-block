@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
             break;
         }
 
-		printf("packet: %u bytes captured\n", header->caplen);
 		if (!check(packet, (uint8_t *)param.pattern_, strlen(param.pattern_))) continue;
 		block(sd, &sa, pcap, (uint8_t *)packet, smac);
     }

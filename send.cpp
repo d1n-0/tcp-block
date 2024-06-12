@@ -32,7 +32,7 @@ int forward(
     size_t ip_len = ((IpHdr *)(packet + sizeof(EthHdr)))->ihl << 2;
     size_t tcp_len = ((TcpHdr *)(packet + sizeof(EthHdr) + ip_len))->offset << 2;
 
-    uint8_t data[4096];
+    uint8_t *data = (uint8_t*)malloc(sizeof(EthHdr) + ip_len + tcp_len);
     memcpy(data, packet, sizeof(EthHdr) + ip_len + tcp_len);
     EthHdr *eth = (EthHdr *)data;
     eth->smac_ = smac;
@@ -50,20 +50,12 @@ int forward(
     tcp->checksum = 0;
     tcp->checksum = tcp->calcChecksum(ip->sip(), ip->dip(), NULL, 0);
 
-    // struct sockaddr_in sin;
-    // sin.sin_family = AF_INET;
-    // sin.sin_port = htons(tcp->d_port);
-    // sin.sin_addr.s_addr = htonl(ip->d_addr);
     if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len, 0, (struct sockaddr *)sa, sizeof(struct sockaddr_ll)) == -1) {
         perror("sendto() failed");
+        free(data);
         return -1;
     }
-    // if (sendto(sd, packet, sizeof(EthHdr) + ntohs(ip->total_length), 0, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
-    //     perror("sendto() failed");
-    //     return -1;
-    // }
-    printf("Forwarded\n");
-    // pcap_sendpacket(pcap, data, sizeof(EthHdr) + ip_len + tcp_len);
+    free(data);
 }
 
 int backward(
@@ -78,7 +70,7 @@ int backward(
     size_t ip_len = ((IpHdr *)(packet + sizeof(EthHdr)))->ihl << 2;
     size_t tcp_len = ((TcpHdr *)(packet + sizeof(EthHdr) + ip_len))->offset << 2;
 
-    uint8_t data[4096];
+    uint8_t *data = (uint8_t*)malloc(sizeof(EthHdr) + ip_len + tcp_len + payload_len);
     memcpy(data, packet, sizeof(EthHdr) + ip_len + tcp_len);
     EthHdr *eth = (EthHdr *)data;
     eth->smac_ = smac;
@@ -110,7 +102,8 @@ int backward(
 
     if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len + payload_len, 0, (struct sockaddr *)sa, sizeof(struct sockaddr_ll)) == -1) {
         perror("sendto() failed");
+        free(data);
         return -1;
     }
-    // pcap_sendpacket(pcap, data, sizeof(EthHdr) + ip_len + tcp_len + payload_len);
+    free(data);
 }
