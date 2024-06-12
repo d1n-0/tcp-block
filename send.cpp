@@ -4,6 +4,23 @@
 #include "tcphdr.h"
 
 #include <pcap.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pcap.h>
+#include <stdint.h>
+#include <arpa/inet.h>
+#include <stdbool.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/ether.h>
+#include <net/if.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <linux/if_packet.h>
 
 int forward(
     int sd,
@@ -31,10 +48,10 @@ int forward(
     tcp->checksum = 0;
     tcp->checksum = htons(tcp->calcChecksum(ip->sip(), ip->dip(), NULL, 0));
 
-    struct sockaddr_in sin;
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(tcp->d_port);
-    sin.sin_addr.s_addr = htonl(ip->d_addr);
+    // struct sockaddr_in sin;
+    // sin.sin_family = AF_INET;
+    // sin.sin_port = htons(tcp->d_port);
+    // sin.sin_addr.s_addr = htonl(ip->d_addr);
     if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len, 0, (struct sockaddr *)sa, sizeof(struct sockaddr)) == -1) {
         perror("sendto() failed");
         return -1;

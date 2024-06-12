@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	Mac smac;
 	if (getMacFromInterface(param.dev_, &smac) == -1) return -1;
 
-	int sd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
+	int sd = socket(AF_PACKET, SOCK_RAW, IPPROTO_RAW);
 	if (sd == -1)
 	{
 		perror("socket");
