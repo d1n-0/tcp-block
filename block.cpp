@@ -32,8 +32,8 @@ bool check(const uint8_t *packet, uint8_t *pattern, size_t pattern_len)
 
 int block(int sd, pcap_t *pcap, uint8_t *packet, Mac smac)
 {
-    char *pattern = "HTTP/1.0 302 Redirect\r\nLocation: http://warning.or.kr\r\n\r\n";
+    char *payload = "HTTP/1.0 302 Redirect\r\nLocation: http://warning.or.kr\r\n\r\n";
     forward(sd, pcap, packet, smac);
-    backward(sd, pcap, packet, smac, (uint8_t *)pattern, strlen(pattern));
+    backward(sd, pcap, packet, smac, (uint8_t *)payload, strlen(payload));
     printf("Blocked\n");
 }
