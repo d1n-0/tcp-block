@@ -99,8 +99,9 @@ int backward(
     uint16_t tmp2 = tcp->d_port;
     tcp->d_port = tcp->s_port;
     tcp->s_port = tmp2;
+    uint32_t tmp3 = ntohl(tcp->seq_num);
     tcp->seq_num = htonl(ntohl(tcp->ack_num));
-    tcp->ack_num = htonl(ntohl(tcp->seq_num) + total_length - ip_len - tcp_len);
+    tcp->ack_num = htonl(tmp3 + total_length - ip_len - tcp_len);
     tcp->flags = FIN | ACK;
     tcp->checksum = 0;
     tcp->checksum = tcp->calcChecksum(ip->sip(), ip->dip(), payload, payload_len);

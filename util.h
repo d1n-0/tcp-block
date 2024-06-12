@@ -14,6 +14,7 @@
 typedef struct
 {
     char *dev_;
+    char *pattern_;
 } Param;
 
 void usage();

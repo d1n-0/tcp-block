@@ -22,7 +22,8 @@
 int main(int argc, char *argv[])
 {
 	Param param = {
-		.dev_ = NULL
+		.dev_ = NULL,
+        .pattern_ = NULL
 	};
 
     if (!parse(&param, argc, argv))
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
         }
 
 		printf("packet: %u bytes captured\n", header->caplen);
-		if (!check(packet, (uint8_t *)"Host: www.gilgil.net", 3)) continue;
+		if (!check(packet, (uint8_t *)param.pattern_, strlen(param.pattern_))) continue;
 		block(sd, &sa, pcap, (uint8_t *)packet, smac);
     }
 

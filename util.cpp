@@ -13,18 +13,19 @@
 const char* http_request_methods[] = {"GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"};
 
 void usage() {
-    printf("syntax : 1m-block <site list file>\n");
-    printf("sample : 1m-block top-1m.txt\n");
+    printf("syntax : tcp-block <interface> <pattern>\n");
+    printf("sample : tcp-block wlan0 \"Host: test.gilgil.net\"\n");
 }
 
 bool parse(Param *param, int argc, char *argv[])
 {
-    if (argc != 2)
+    if (argc != 3)
     {
         usage();
         return false;
     }
     param->dev_ = argv[1];
+    param->pattern_ = argv[2];
     return true;
 }
 
