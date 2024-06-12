@@ -43,7 +43,7 @@ int forward(
     ip->header_checksum = ip->calcChecksum();
 
     TcpHdr *tcp = (TcpHdr *)(data + sizeof(EthHdr) + ip_len);
-    tcp->seq_num = htonl(ntohl(tcp->seq_num) + ip->total_length - ip_len - tcp_len);
+    tcp->seq_num = htonl(ntohl(tcp->seq_num) + ntohs(ip->total_length) - ip_len - tcp_len);
     tcp->flags = RST | ACK;
     tcp->checksum = 0;
     tcp->checksum = tcp->calcChecksum(ip->sip(), ip->dip(), NULL, 0);
@@ -90,7 +90,7 @@ int backward(
 
     TcpHdr *tcp = (TcpHdr *)(data + sizeof(EthHdr) + ip_len);
     tcp->seq_num = htonl(ntohl(tcp->ack_num));
-    tcp->ack_num = htonl(ntohl(tcp->seq_num) + ip->total_length - ip_len - tcp_len);
+    tcp->ack_num = htonl(ntohl(tcp->seq_num) + ntohs(ip->total_length) - ip_len - tcp_len);
     tcp->flags = FIN | ACK;
     tcp->checksum = 0;
     tcp->checksum = tcp->calcChecksum(ip->sip(), ip->dip(), payload, payload_len);
