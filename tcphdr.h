@@ -45,8 +45,8 @@ typedef struct {
         uint32_t sum = 0;
         uint16_t *p;
         _pseudo_header pseudo_header = {
-            sip,
-            dip,
+            ntohl(sip),
+            ntohl(dip),
             0,
             IPPROTO_TCP,
             htons((offset << 2) + payload_len)
@@ -54,6 +54,7 @@ typedef struct {
         
         p = (uint16_t *)&pseudo_header;
         for (int i = 0; i < sizeof(struct _pseudo_header) >> 1; i++) {
+            printf("%x ", *p);
             sum += (*p++);
         }
 
