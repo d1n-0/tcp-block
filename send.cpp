@@ -83,12 +83,19 @@ int backward(
     eth->dmac_ = eth->smac_;
 
     IpHdr *ip = (IpHdr *)(data + sizeof(EthHdr));
+
+    uint32_t tmp = ip->d_addr;
+    ip->d_addr = ip->s_addr;
+    ip->s_addr = tmp;
     ip->total_length = htons(ip_len + tcp_len + payload_len);
     ip->time_to_live = 128;
     ip->header_checksum = 0;
     ip->header_checksum = ip->calcChecksum();
 
     TcpHdr *tcp = (TcpHdr *)(data + sizeof(EthHdr) + ip_len);
+    uint16_t tmp2 = tcp->d_port;
+    tcp->d_port = tcp->s_port;
+    tcp->s_port = tmp2;
     tcp->seq_num = htonl(ntohl(tcp->ack_num));
     tcp->ack_num = htonl(ntohl(tcp->seq_num) + ntohs(ip->total_length) - ip_len - tcp_len);
     tcp->flags = FIN | ACK;
@@ -96,11 +103,6 @@ int backward(
     tcp->checksum = tcp->calcChecksum(ip->sip(), ip->dip(), payload, payload_len);
 
     memcpy(data + sizeof(EthHdr) + ip_len + tcp_len, payload, payload_len);
-
-    struct sockaddr_in sin;
-    sin.sin_family = AF_INET;
-    sin.sin_port = tcp->s_port;
-    sin.sin_addr.s_addr = ip->s_addr;
 
     if (sendto(sd, data, sizeof(EthHdr) + ip_len + tcp_len + payload_len, 0, (struct sockaddr *)sa, sizeof(struct sockaddr_ll)) == -1) {
         perror("sendto() failed");
