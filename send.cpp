@@ -38,12 +38,14 @@ int forward(
     eth->smac_ = smac;
 
     IpHdr *ip = (IpHdr *)(data + sizeof(EthHdr));
+    uint16_t total_length = ntohs(ip->total_length);
+
     ip->total_length = htons(ip_len + tcp_len);
     ip->header_checksum = 0;
     ip->header_checksum = ip->calcChecksum();
 
     TcpHdr *tcp = (TcpHdr *)(data + sizeof(EthHdr) + ip_len);
-    tcp->seq_num = htonl(ntohl(tcp->seq_num) + ntohs(ip->total_length) - ip_len - tcp_len);
+    tcp->seq_num = htonl(ntohl(tcp->seq_num) + total_length - ip_len - tcp_len);
     tcp->flags = RST | ACK;
     tcp->checksum = 0;
     tcp->checksum = tcp->calcChecksum(ip->sip(), ip->dip(), NULL, 0);
@@ -83,6 +85,7 @@ int backward(
     eth->dmac_ = eth->smac_;
 
     IpHdr *ip = (IpHdr *)(data + sizeof(EthHdr));
+    uint16_t total_length = ntohs(ip->total_length);
 
     uint32_t tmp = ip->d_addr;
     ip->d_addr = ip->s_addr;
@@ -97,7 +100,7 @@ int backward(
     tcp->d_port = tcp->s_port;
     tcp->s_port = tmp2;
     tcp->seq_num = htonl(ntohl(tcp->ack_num));
-    tcp->ack_num = htonl(ntohl(tcp->seq_num) + ntohs(ip->total_length) - ip_len - tcp_len);
+    tcp->ack_num = htonl(ntohl(tcp->seq_num) + total_length - ip_len - tcp_len);
     tcp->flags = FIN | ACK;
     tcp->checksum = 0;
     tcp->checksum = tcp->calcChecksum(ip->sip(), ip->dip(), payload, payload_len);
